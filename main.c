@@ -76,11 +76,11 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
                 ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
                 ,spy_S2T(tv.tv_sec));
             
-            spy_printf("Package: caplen=%d\n",header->caplen);
-            for(int i=0;i<header->caplen;i++){
-                spy_printf("%02x ",packet[i]);
-            }
-            spy_printf("\n\n");
+            // spy_printf("Package: caplen=%d\n",header->caplen);
+            // for(int i=0;i<header->caplen;i++){
+            //     spy_printf("%02x ",packet[i]);
+            // }
+            // spy_printf("\n\n");
         }
 
 
