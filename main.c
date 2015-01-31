@@ -93,10 +93,6 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 int main(int argc, char  *argv[])
  {
 
-#ifdef __MAC_OS
-    printf("Fdsafdsfdsfdsfdsf\n")l
-    return 1;
-#endif
     int ch;
     opterr=0;
     char device[50];
