@@ -9,4 +9,4 @@ fi
 ifconfig $device down
 iwconfig $device mode Monitor
 ifconfig $device up
-./mycap -i $device
+./mycap -i $device $2
