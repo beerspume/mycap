@@ -62,7 +62,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
         if(!enable_mac_filter 
             || ((addressIn(&s_80211,my_mac,1))
-                )
+                
             )
         ){
 
