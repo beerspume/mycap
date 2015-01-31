@@ -1,3 +1,4 @@
+
 all: main.c
 	gcc -g -Wall -o mycap *.c -lpcap  -std=gnu99 
   

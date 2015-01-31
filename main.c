@@ -13,6 +13,7 @@
 #include "spy.h"
 
 pcap_t* pd;
+int enable_mac_filter=0;
 
 void CatchShutdown(int sig) {
     if(pd!=NULL){
@@ -54,14 +55,16 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
         char* my_mac[]={
             "b4:0b:44:0c:99:2e"
-            // ,"00:08:22:aa:ae:fc"
-            // ,"a4:ed:4e:40:e2:81"
-            // ,"68:96:7b:e6:d6:62"
+            ,"00:08:22:aa:ae:fc"
+            ,"a4:ed:4e:40:e2:81"
+            ,"68:96:7b:e6:d6:62"
         };
 
-        if((addressIn(&s_80211,my_mac,1))
-            || (frame_control_match(s_80211.frame_control[0],TYPE_80211_Data,TYPE_80211_Mask_Code) &&
-                frame_control_match(s_80211.frame_control[0],TYPE_80211_D_QoSData,SUBTYPE_80211_Mask_Code))
+        if(!enable_mac_filter 
+            || ((addressIn(&s_80211,my_mac,1))
+                || (frame_control_match(s_80211.frame_control[0],TYPE_80211_Data,TYPE_80211_Mask_Code) &&
+                    frame_control_match(s_80211.frame_control[0],TYPE_80211_D_QoSData,SUBTYPE_80211_Mask_Code))
+            )
         ){
 
             gettimeofday (&tv , &tz);
@@ -87,15 +90,31 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
 
     }
 }
-int main(int argc, char const *argv[])
+int main(int argc, char  *argv[])
  {
+    int ch;
+    opterr=0;
+    char device[50];
+    strcpy(device,"mon0");
+    while((ch=getopt(argc,argv,"i:f"))!=-1){
+        switch(ch){
+            case 'i':
+                strcpy(device,optarg);
+                break;
+            case 'f':
+                enable_mac_filter=1;
+                break;
+            default:
+                break;
+        }
+    };
+
     signal(SIGINT, CatchShutdown);
     signal(SIGTERM, CatchShutdown);
     signal(SIGHUP, CatchShutdown);
     signal(SIGQUIT, CatchShutdown);
     spy_printf("");
     char errBuf[1024]="";
-    char* device="mon0";
 
     
     pd=pcap_open_live(device,2048,1,1000,errBuf);

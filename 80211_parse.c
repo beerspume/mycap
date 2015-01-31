@@ -216,18 +216,10 @@ parse_end:
 };
 
 void std_80211_clean(struct std_80211* s){
-    s->frame_control[0]=0;
-    s->frame_control[1]=0;
-    for(int i=0;i<6;i++){s->address1[i]=0;}
-    for(int i=0;i<6;i++){s->address2[i]=0;}
-    for(int i=0;i<6;i++){s->address3[i]=0;}
-    // for(int i=0;i<6;i++){s->address4[i]=0;}
-    memcpy(s->mac_addr1,"00:00:00:00:00:00",19);
-    memcpy(s->mac_addr2,"00:00:00:00:00:00",19);
-    memcpy(s->mac_addr3,"00:00:00:00:00:00",19);
-
-    // s->mac_addr4)="00:00:00:00:00:00";
-    s->isReserved=0;
+    memset(s,0,sizeof(struct std_80211));
+    strcpy(s->mac_addr1,"00:00:00:00:00:00");
+    strcpy(s->mac_addr2,s->mac_addr1);
+    strcpy(s->mac_addr3,s->mac_addr1);
 };
 
 void convertToMacChar(uint8_t* address,char* mac_char){
