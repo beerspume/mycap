@@ -1,10 +1,12 @@
-#!/bin/sh
-
-deivce=$1
-if [device==""] 
+#!/bin/bash
+set -e
+device=$1
+if [ "$device"x = ""x ]
 then
-    device="wlan0"
+  device="wlan0"
 fi
-airmon-ng start $deivce
-./mycap -i mon0
-airmon-ng stop mon0
+#echo $device
+ifconfig $device down
+iwconfig $device mode Monitor
+ifconfig $device up
+./mycap -i $device
