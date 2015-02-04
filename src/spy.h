@@ -14,12 +14,13 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include "utils.h"
+
 #ifndef JOYFUL_SPY
 #define JOYFUL_SPY
 
 
 void spy_printf(const char *fmt, ...);
-char* spy_S2T(time_t second);
 
 void buf_printf(const char *fmt, ...);
 void* trans_buff(void*);

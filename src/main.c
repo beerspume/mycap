@@ -14,7 +14,6 @@
 #include "spy.h"
 
 pcap_t* pd;
-int enable_mac_filter=0;
 pthread_t t1;
 
 void CatchShutdown(int sig) {
@@ -58,27 +57,13 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         struct std_80211 s_80211;
         parse80211(p,data_len,&s_80211);
 
-        char* my_mac[]={
-            "b4:0b:44:0c:99:2e"
-            ,"00:08:22:aa:ae:fc"
-            ,"a4:ed:4e:40:e2:81"
-            ,"68:96:7b:e6:d6:62"
-        };
-
-        if(!enable_mac_filter 
-            || ((addressIn(&s_80211,my_mac,4))
-                
-            )
-        ){
-
-            if(rt_header.has_TSFT){
-                http_printf("%ld ",rt_header.v_TSFT/1000000);
-            }
-            http_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-                s_80211.type,s_80211.subtype,s_80211.tofrom
-                ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
-                ,spy_S2T(header->ts.tv_sec));
+        if(rt_header.has_TSFT){
+            http_printf("%ld ",rt_header.v_TSFT/1000000);
         }
+        http_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+            s_80211.type,s_80211.subtype,s_80211.tofrom
+            ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
+            ,spy_S2T(header->ts.tv_sec));
 */
 
 
@@ -97,13 +82,10 @@ int main(int argc, char  *argv[])
     opterr=0;
     char device[50];
     strcpy(device,"mon0");
-    while((ch=getopt(argc,argv,"i:fh:p:"))!=-1){
+    while((ch=getopt(argc,argv,"i:h:p:"))!=-1){
         switch(ch){
             case 'i':
                 strcpy(device,optarg);
-                break;
-            case 'f':
-                enable_mac_filter=1;
                 break;
             case 'h':
                 spy_setHostname(optarg);

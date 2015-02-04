@@ -18,20 +18,6 @@ void spy_printf(const char *fmt, ...){
 	va_end(ap);
 }
 
-static char spy_FormatedTimeResult[20];
-char* spy_S2T(time_t second){
-	struct tm* tm_time=localtime(&second);
-	sprintf(spy_FormatedTimeResult,"%4d-%02d-%02d %02d:%02d:%02d",
-		tm_time->tm_year+1900
-		,tm_time->tm_mon+1
-		,tm_time->tm_mday
-		,tm_time->tm_hour
-		,tm_time->tm_min
-		,tm_time->tm_sec
-	);
-	return spy_FormatedTimeResult;
-};
-
 char log_data[1024];
 void buf_printf(const char *fmt, ...){
 	va_list ap;
@@ -111,7 +97,7 @@ void do_trans(char* data){
 	    	return;
 	    }
 	}else{
-		send(client_sockfd,data,strlen(data),0);
+		send(client_sockfd,data,strlen(data)+1,0);
 	}
 };
 
@@ -137,7 +123,9 @@ void stop_trans(){
 char base64_buff[1024];
 void bin_print(const struct pcap_pkthdr *header, const u_char* packet){
 	memset(base64_buff,0,1024);
-	base64_encode(packet,base64_buff,header->caplen);
+	sprintf(base64_buff,"len=%d;time=%s;utime;=%ld;data=",header->caplen,utils_S2T(header->ts.tv_sec),header->ts.tv_usec);
+	char* data_buff=base64_buff+strlen(base64_buff);
+	base64_encode(packet,data_buff,header->caplen);
 
 	// buf_printf(base64_buff);
 	do_trans(base64_buff);

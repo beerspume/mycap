@@ -1,5 +1,20 @@
 #include "utils.h"
 
+
+static char utils_FormatedTimeResult[20];
+char* utils_S2T(time_t second){
+    struct tm* tm_time=localtime(&second);
+    sprintf(utils_FormatedTimeResult,"%4d-%02d-%02d %02d:%02d:%02d",
+        tm_time->tm_year+1900
+        ,tm_time->tm_mon+1
+        ,tm_time->tm_mday
+        ,tm_time->tm_hour
+        ,tm_time->tm_min
+        ,tm_time->tm_sec
+    );
+    return utils_FormatedTimeResult;
+};
+
 int isBigEndian(){
     union{
         uint16_t v1;
@@ -166,3 +181,42 @@ struct string_buffer_chain* queue_popup(){
     pthread_mutex_unlock(&queue_mutex);
     return ret;
 };
+
+
+int getIntProperty(const char* data,const char* key,int* ret){
+    char value[20];
+    int rc=getStrProperty(data,key,value);
+    if(rc!=0){
+        *ret=0;
+    }else{
+        *ret=atoi(value);
+    }
+    return rc;
+};
+
+int getStrProperty(const char* data,const char* key,char* ret){
+    char* fullkey=malloc(strlen(key)+3);
+    sprintf(fullkey,";%s=",key);
+    int fullkey_len=strlen(fullkey);
+    char* p0=strstr(data,(const char*)fullkey);
+    if(p0==NULL){
+        if(memcmp(data,fullkey+1,fullkey_len-1)==0){
+            p0=((char*)data)+fullkey_len-1;
+        }
+    }else{
+         p0+=fullkey_len;
+    }
+    free(fullkey);
+    if(p0!=NULL){
+        char* p1=strstr((const char*)p0,";");
+        if(p1!=NULL){
+            memcpy(ret,p0,p1-p0);
+        }else{
+            strcpy(ret,p0);
+        }
+        return 0;
+    }else{
+        return 1;
+    }
+};
+

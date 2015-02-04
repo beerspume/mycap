@@ -15,7 +15,7 @@ struct string_buffer_chain{
     // log_buffer_chain* prev;
 };
 
-
+char* utils_S2T(time_t second);
 
 int isBigEndian();
 
@@ -29,5 +29,8 @@ int base64_decode(const char*,u_char*);
 void queue_push(struct string_buffer_chain*);
 struct string_buffer_chain* queue_popup();
 void queue_init_lock();
+
+int getIntProperty(const char*,const char*,int*);
+int getStrProperty(const char*,const char*,char*);
 
 #endif
