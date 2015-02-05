@@ -89,16 +89,7 @@ void parse80211(const u_char* data,int data_len,struct std_80211* s_80211){
     }
     convertToMacChar(s_80211->address3,s_80211->mac_addr3);
 
-    // p+=2;
-    // if(p-data>=data_len) goto parse_end;
-    // for(int i=0;i<6;i++){
-    //     s_80211->address4[i]=*(uint8_t*)p;
-    //     p+=sizeof(uint8_t);
-    // }
-    // convertToMacChar(s_80211->address4,s_80211->mac_addr4);
-
 parse_end:
-// printf("%d\n",frame_control_match(s_80211->frame_control[0],TYPE_80211_Management,TYPE_80211_Mask_Code));
     if(frame_control_match(s_80211->frame_control[0],TYPE_80211_Management,TYPE_80211_Mask_Code)){
         s_80211->type=CONSTANS_80211_TYPE_Management;
 

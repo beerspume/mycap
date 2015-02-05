@@ -95,11 +95,6 @@ void do_parse(u_char* buff){
     struct std_80211 s_80211;
     parse80211(p,frame_len,&s_80211);
 
-    if(rt_header.has_TSFT){
-        printf("%ld ",rt_header.v_TSFT/1000000);
-    }
-
-    
     sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`) values ('%s','%s','%s','%s','%s','%s','%s');"
         ,s_80211.type
         ,s_80211.subtype
@@ -115,21 +110,10 @@ void do_parse(u_char* buff){
         printf("insert faile:%s\n",pErrMsg);
         sqlite3_free(pErrMsg);
     }
-    // printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d\n",
-    //     s_80211.type,s_80211.subtype,s_80211.tofrom
-    //     ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
-    //     ,time_str,caplen);
-    // printf("%s\n\n",buff);
 }
 
 u_char pre_read_buff[BUFSIZ]="";
 void do_recv(u_char* buff,int len){
-    // printf("%ld=%d\n",strlen((char*)buff),len);
-    // for(int i=0;i<len;i++){
-    //     printf("%02x[%1c] ",buff[i],buff[i]);
-    // }
-    // printf("\n");
-
     u_char temp_buff[BUFSIZ];
     strcpy((char*)temp_buff,(const char *)pre_read_buff);
     memset(pre_read_buff,0,BUFSIZ);
@@ -153,13 +137,9 @@ void do_recv(u_char* buff,int len){
             current_temp_buff=temp_buff;
             current_buff+=zero_index+1;
             remain_len=len-(current_buff-buff);
-            // printf("%s\n",current_temp_buff);
             do_parse(current_temp_buff);
         }
     }
-    // printf("remain:%s\n",pre_read_buff);
-
-    // printf("\n\n");
 
 }
 
