@@ -9,12 +9,14 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <signal.h>
+#include <mysql/mysql.h>
 
 #include "radiotap_parse.h"
 #include "80211_parse.h"
 #include "utils.h"
 
 sqlite3 * db = 0;
+MYSQL my_connection; 
 void CatchShutdown(int sig) {
     if(db!=0){
         sqlite3_close(db);
@@ -25,7 +27,7 @@ void CatchShutdown(int sig) {
 int initDB(){
     const char * create_table_sql = 
 "create table frame(\
-id INTEGER PRIMARY KEY,\
+id INTEGER not null auto_increment PRIMARY KEY ,\
 `type` varchar(20),\
 subtype varchar(50),\
 tofrom varchar(20),\
@@ -34,6 +36,7 @@ addr2 varchar(20),\
 addr3 varchar(20),\
 `time` varchar(50)\
 );";
+/*
     char * pErrMsg = 0;
     int ret = sqlite3_open("./mycap.db", &db);
     if( ret != SQLITE_OK ) {
@@ -52,6 +55,16 @@ addr3 varchar(20),\
         return 0;
     }
     printf("init table success!\n");
+*/
+    mysql_init(&my_connection);
+    if(mysql_real_connect(&my_connection,"127.0.0.1"  
+                            ,"mycap","123456","mycap",3306,NULL,0)){  
+        printf("db open success!\n");
+        mysql_query(&my_connection,create_table_sql);
+    }else{
+        printf("can't open db: ");
+        return 0;
+    }
     return 1;
 }
 
@@ -104,12 +117,22 @@ void do_parse(u_char* buff){
         ,s_80211.mac_addr3
         ,time_str
     );
+
+    // printf("%s\n",sql);
+
+    int result=mysql_query(&my_connection,sql);
+    if(result!=0){
+        printf("insert faile\n");
+    }
+
+/*
     char * pErrMsg = 0;
     int result = sqlite3_exec( db, sql, 0, 0, &pErrMsg);
     if(result != SQLITE_OK){
         printf("insert faile:%s\n",pErrMsg);
         sqlite3_free(pErrMsg);
     }
+*/
 }
 
 u_char pre_read_buff[BUFSIZ]="";
