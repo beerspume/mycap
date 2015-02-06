@@ -2,57 +2,57 @@
 
 //struct 80211 constans
 static char* CONSTANS_80211_TYPE_Management                 ="Management";
-static char* CONSTANS_80211_TYPE_Control                    ="Control   ";
-static char* CONSTANS_80211_TYPE_Data                       ="Data      ";
-static char* CONSTANS_80211_TYPE_Reserved                   ="Reserved  ";
+static char* CONSTANS_80211_TYPE_Control                    ="Control";
+static char* CONSTANS_80211_TYPE_Data                       ="Data";
+static char* CONSTANS_80211_TYPE_Reserved                   ="Reserved";
 
-static char* CONSTANS_80211_SUBTYPE_AssociationRequest      ="Association request        ";
-static char* CONSTANS_80211_SUBTYPE_AssociationResponse     ="Association response       ";
-static char* CONSTANS_80211_SUBTYPE_ReassociationRequest    ="Reassociation request      ";
-static char* CONSTANS_80211_SUBTYPE_ReassociationResponse   ="Reassociation response     ";
-static char* CONSTANS_80211_SUBTYPE_ProbeRequest            ="Probe request              ";
-static char* CONSTANS_80211_SUBTYPE_ProbeResponse           ="Probe response             ";
-static char* CONSTANS_80211_SUBTYPE_TimingAdvertisement     ="Timing Advertisement       ";
-static char* CONSTANS_80211_SUBTYPE_Beacon                  ="Beacon                     ";
-static char* CONSTANS_80211_SUBTYPE_ATIM                    ="ATIM                       ";
-static char* CONSTANS_80211_SUBTYPE_Disassociation          ="Disassociation             ";
-static char* CONSTANS_80211_SUBTYPE_Authentication          ="Authentication             ";
-static char* CONSTANS_80211_SUBTYPE_Deauthentication        ="Deauthentication           ";
-static char* CONSTANS_80211_SUBTYPE_Action                  ="Action                     ";
-static char* CONSTANS_80211_SUBTYPE_ActionNoAck             ="Action No Ack              ";
+static char* CONSTANS_80211_SUBTYPE_AssociationRequest      ="Association request";
+static char* CONSTANS_80211_SUBTYPE_AssociationResponse     ="Association response";
+static char* CONSTANS_80211_SUBTYPE_ReassociationRequest    ="Reassociation request";
+static char* CONSTANS_80211_SUBTYPE_ReassociationResponse   ="Reassociation response";
+static char* CONSTANS_80211_SUBTYPE_ProbeRequest            ="Probe request";
+static char* CONSTANS_80211_SUBTYPE_ProbeResponse           ="Probe response";
+static char* CONSTANS_80211_SUBTYPE_TimingAdvertisement     ="Timing Advertisement";
+static char* CONSTANS_80211_SUBTYPE_Beacon                  ="Beacon";
+static char* CONSTANS_80211_SUBTYPE_ATIM                    ="ATIM";
+static char* CONSTANS_80211_SUBTYPE_Disassociation          ="Disassociation";
+static char* CONSTANS_80211_SUBTYPE_Authentication          ="Authentication";
+static char* CONSTANS_80211_SUBTYPE_Deauthentication        ="Deauthentication";
+static char* CONSTANS_80211_SUBTYPE_Action                  ="Action";
+static char* CONSTANS_80211_SUBTYPE_ActionNoAck             ="Action No Ack";
 
-static char* CONSTANS_80211_SUBTYPE_ControlWrapper          ="Control Wrapper            ";
-static char* CONSTANS_80211_SUBTYPE_BlockAckReq             ="Block Ack Request          ";
-static char* CONSTANS_80211_SUBTYPE_BlockAck                ="Block Ack                  ";
-static char* CONSTANS_80211_SUBTYPE_PSPoll                  ="PS-Poll                    ";
-static char* CONSTANS_80211_SUBTYPE_RTS                     ="RTS                        ";
-static char* CONSTANS_80211_SUBTYPE_CTS                     ="CTS                        ";
-static char* CONSTANS_80211_SUBTYPE_ACK                     ="ACK                        ";
-static char* CONSTANS_80211_SUBTYPE_CFEnd                   ="CF-End                     ";
-static char* CONSTANS_80211_SUBTYPE_CFEnd_CFAck             ="CF-End+CF-Ack              ";
+static char* CONSTANS_80211_SUBTYPE_ControlWrapper          ="Control Wrapper";
+static char* CONSTANS_80211_SUBTYPE_BlockAckReq             ="Block Ack Request";
+static char* CONSTANS_80211_SUBTYPE_BlockAck                ="Block Ack";
+static char* CONSTANS_80211_SUBTYPE_PSPoll                  ="PS-Poll";
+static char* CONSTANS_80211_SUBTYPE_RTS                     ="RTS";
+static char* CONSTANS_80211_SUBTYPE_CTS                     ="CTS";
+static char* CONSTANS_80211_SUBTYPE_ACK                     ="ACK";
+static char* CONSTANS_80211_SUBTYPE_CFEnd                   ="CF-End";
+static char* CONSTANS_80211_SUBTYPE_CFEnd_CFAck             ="CF-End+CF-Ack";
 
-static char* CONSTANS_80211_SUBTYPE_Data                    ="Data                       ";
-static char* CONSTANS_80211_SUBTYPE_Data_CFAck              ="Data+CF-Ack                ";
-static char* CONSTANS_80211_SUBTYPE_Data_CFPoll             ="Data+CF-Poll               ";
-static char* CONSTANS_80211_SUBTYPE_Data_CFAck_CFPoll       ="Data+CF-Ack+CF-Poll        ";
-static char* CONSTANS_80211_SUBTYPE_Null                    ="Null (no data)             ";
-static char* CONSTANS_80211_SUBTYPE_CFAck                   ="CF-Ack(no data)            ";
-static char* CONSTANS_80211_SUBTYPE_CFPoll                  ="CF-Poll(no data)           ";
-static char* CONSTANS_80211_SUBTYPE_CFAck_CFPoll            ="CF-Ack+CF-Poll(no data)    ";
-static char* CONSTANS_80211_SUBTYPE_QoSData                 ="QoS Data                   ";
-static char* CONSTANS_80211_SUBTYPE_QoSData_CFAck           ="QoS Data+CF-Ack            ";
-static char* CONSTANS_80211_SUBTYPE_QoSData_CFPoll          ="QoS Data+CF-Poll           ";
-static char* CONSTANS_80211_SUBTYPE_QoSData_CFAck_CFPoll    ="QoS Data+CF-Ack + CF-Poll  ";
-static char* CONSTANS_80211_SUBTYPE_QoSNull                 ="QoS Null(no data)          ";
-static char* CONSTANS_80211_SUBTYPE_QoSCFPoll               ="QoS CF-Poll(no data)       ";
+static char* CONSTANS_80211_SUBTYPE_Data                    ="Data";
+static char* CONSTANS_80211_SUBTYPE_Data_CFAck              ="Data+CF-Ack";
+static char* CONSTANS_80211_SUBTYPE_Data_CFPoll             ="Data+CF-Poll";
+static char* CONSTANS_80211_SUBTYPE_Data_CFAck_CFPoll       ="Data+CF-Ack+CF-Poll";
+static char* CONSTANS_80211_SUBTYPE_Null                    ="Null (no data)";
+static char* CONSTANS_80211_SUBTYPE_CFAck                   ="CF-Ack(no data)";
+static char* CONSTANS_80211_SUBTYPE_CFPoll                  ="CF-Poll(no data)";
+static char* CONSTANS_80211_SUBTYPE_CFAck_CFPoll            ="CF-Ack+CF-Poll(no data)";
+static char* CONSTANS_80211_SUBTYPE_QoSData                 ="QoS Data";
+static char* CONSTANS_80211_SUBTYPE_QoSData_CFAck           ="QoS Data+CF-Ack";
+static char* CONSTANS_80211_SUBTYPE_QoSData_CFPoll          ="QoS Data+CF-Poll";
+static char* CONSTANS_80211_SUBTYPE_QoSData_CFAck_CFPoll    ="QoS Data+CF-Ack + CF-Poll";
+static char* CONSTANS_80211_SUBTYPE_QoSNull                 ="QoS Null(no data)";
+static char* CONSTANS_80211_SUBTYPE_QoSCFPoll               ="QoS CF-Poll(no data)";
 static char* CONSTANS_80211_SUBTYPE_QoSCFAck_CFPoll         ="QoS CF-Ack+CF-Poll(no data)";
-static char* CONSTANS_80211_SUBTYPE_Reserved                ="Reserved                   ";
+static char* CONSTANS_80211_SUBTYPE_Reserved                ="Reserved";
 
 
 static char* CONSTANS_80211_TF_StaToSta                     ="Sta To Sta";
-static char* CONSTANS_80211_TF_StaToAp                      ="Sta To Ap ";
-static char* CONSTANS_80211_TF_ApToSta                      ="Ap To Sta ";
-static char* CONSTANS_80211_TF_ApToAp                       ="Ap To Ap  ";
+static char* CONSTANS_80211_TF_StaToAp                      ="Sta To Ap";
+static char* CONSTANS_80211_TF_ApToSta                      ="Ap To Sta";
+static char* CONSTANS_80211_TF_ApToAp                       ="Ap To Ap";
 
 
 int frame_control_match(uint8_t frame,uint8_t contant,uint8_t mack_code){
