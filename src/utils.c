@@ -1,3 +1,5 @@
+#include <sys/stat.h>
+#include <unistd.h>
 #include "utils.h"
 
 
@@ -220,3 +222,105 @@ int getStrProperty(const char* data,const char* key,char* ret){
     }
 };
 
+struct config my_config;
+pthread_t thread_refresh_config;
+int refresh_config_running=0;
+struct stat* config_stat=NULL;
+char * config_filename="config.json";
+void* refresh_config(void* arg){
+    if(refresh_config_running)return NULL;
+    refresh_config_running=1;
+    uint32_t times=0;
+    while(refresh_config_running){
+        if(times<50){
+            times++;
+            usleep(100000);
+            continue;
+        };
+        times=0;
+        struct stat statbuf;
+        if(stat(config_filename,&statbuf)==0){
+            if(config_stat==NULL){
+                config_stat=malloc(sizeof(struct stat));
+                memcpy(config_stat,&statbuf,sizeof(struct stat));
+            }else{
+                if(config_stat->st_mtime!=statbuf.st_mtime 
+                    || config_stat->st_size!=statbuf.st_size){
+                    printf("config file changed,it will be reloaded\n");
+                    initConfig();
+                    memcpy(config_stat,&statbuf,sizeof(struct stat));
+                }
+            }
+        }
+    }
+    return NULL;
+};
+void shutdown_refresh_config(){
+    refresh_config_running=0;
+    pthread_join(thread_refresh_config,NULL);
+}
+void config_free(){
+    free(my_config.filter_subtype);
+    memset(&my_config,0,sizeof(struct config));
+};
+struct config* initConfig(){
+    if(!refresh_config_running){
+        pthread_create(&thread_refresh_config,NULL,refresh_config,(void *)NULL);
+    }
+    struct stat statbuf;
+    if(stat(config_filename,&statbuf)==0){
+        int size=statbuf.st_size;
+        FILE *config_file;
+        config_file=fopen("config.json","r");
+        if(config_file!=NULL){
+            char* file_content_buff=malloc(size);
+            fread(file_content_buff,size,1,config_file);
+            fclose(config_file);
+            cJSON* json=cJSON_Parse(file_content_buff);
+            free(file_content_buff);
+            if(json!=NULL){
+                config_free(&my_config);
+                cJSON* c_j=cJSON_GetObjectItem(cJSON_GetObjectItem(json,"filter"),"subtype");
+                int array_size=cJSON_GetArraySize(c_j);
+                int total_size=0;
+                for(int i=0;i<array_size;i++){
+                    cJSON* c_item=cJSON_GetArrayItem(c_j,i);
+                    total_size+=strlen(c_item->valuestring)+1;
+                }
+                total_size+=2;
+                my_config.filter_subtype=malloc(total_size);
+                memset(my_config.filter_subtype,0,total_size);
+                char* c_c_filter_subtype=my_config.filter_subtype;
+                for(int i=0;i<array_size;i++){
+                    cJSON* c_item=cJSON_GetArrayItem(c_j,i);
+                    strcpy(c_c_filter_subtype,c_item->valuestring);
+                    c_c_filter_subtype+=strlen(c_item->valuestring)+1;;
+                }
+            }else{
+                printf("invalid json!\n");
+            }
+            cJSON_Delete(json);
+        }
+    }
+
+    return  &my_config;
+};
+
+int subtype_in_config_filter(char* subtype){
+    char* c_c_filter_subtype=my_config.filter_subtype;
+    if(c_c_filter_subtype!=NULL){
+        while(1){
+            int len=strlen(c_c_filter_subtype);
+            if(len==0)break;
+            char buff[30];
+            strcpy(buff,c_c_filter_subtype);
+            if(strcmp(buff,subtype)==0)return 1;
+            c_c_filter_subtype+=len+1;
+        }
+    }
+    return 0;
+};
+
+struct config* getConfig(){
+    return &my_config;
+}

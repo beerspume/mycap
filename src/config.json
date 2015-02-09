@@ -1,0 +1,16 @@
+{
+    "filter":{
+        "subtype":[
+            "QoS Data"
+            ,"Beacon"
+            ,"ACK"
+            ,"Block Ack"
+            ,"Probe response"
+            ,"RTS"
+            ,"CTS"
+            ,"Block Ack Request"
+            ,"Data"
+            ,"Null (no data)"
+        ]
+    }
+}

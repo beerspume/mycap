@@ -84,6 +84,9 @@ struct std_80211{
     char* subtype;
     char* tofrom;
 
+    uint8_t type_int;
+    uint8_t tofrom_int;
+
     uint8_t isReserved;
 
 };

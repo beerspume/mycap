@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "radiotap_parse.h"
 #include "80211_parse.h"
+#include "parse.h"
 #include "spy.h"
 
 pcap_t* pd;
@@ -46,37 +47,22 @@ const char* convertToBinartString(uint32_t number,int maxlen){
 
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
     if(packet!=NULL){
-        bin_print(header,packet);
-/*        
+        // bin_print(header,packet);
+
         struct std_rt_header rt_header;
-        parseRadioHeader(packet,&rt_header);
-
-        int data_len=header->caplen-rt_header.len;
-        const u_char* p=packet+rt_header.len;
-
         struct std_80211 s_80211;
-        parse80211(p,data_len,&s_80211);
-
-        if(rt_header.has_TSFT){
-            http_printf("%ld ",rt_header.v_TSFT/1000000);
+        parsePacket(header,packet,&rt_header,&s_80211);
+        if(!subtype_in_config_filter(s_80211.subtype)){
+            spy_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+                s_80211.type,s_80211.subtype,s_80211.tofrom
+                ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
+                ,utils_S2T(header->ts.tv_sec));
         }
-        http_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-            s_80211.type,s_80211.subtype,s_80211.tofrom
-            ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
-            ,spy_S2T(header->ts.tv_sec));
-*/
-
-
     }
 }
 int main(int argc, char  *argv[])
  {
-    // uint8_t s[]={
-    //     0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08
-    // };
-
-    // printf("%d,%d,%ld\n",convertToLittleEndian16(s),convertToLittleEndian32(s),convertToLittleEndian64(s));
-    // return 0;
+    initConfig();
 
     int ch;
     opterr=0;

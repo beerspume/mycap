@@ -193,6 +193,7 @@ parse_end:
         s_80211->subtype=CONSTANS_80211_SUBTYPE_Reserved;
         s_80211->isReserved=1;
     }
+    s_80211->type_int=(s_80211->frame_control[0]&TYPE_80211_Mask_Code)|(s_80211->frame_control[0]&SUBTYPE_80211_Mask_Code);
 
     if(frame_control_match(s_80211->frame_control[1],TF_80211_StaToSta,TF_80211_Mask_Code)){
         s_80211->tofrom=CONSTANS_80211_TF_StaToSta;
@@ -203,6 +204,7 @@ parse_end:
     }else if(frame_control_match(s_80211->frame_control[1],TF_80211_ApToAp,TF_80211_Mask_Code)){
         s_80211->tofrom=CONSTANS_80211_TF_ApToAp;
     }
+    s_80211->tofrom_int=(s_80211->frame_control[1] & TF_80211_Mask_Code);
 
 };
 

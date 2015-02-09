@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sqlite3.h>
+// #include <sqlite3.h>
 #include <signal.h>
 #include <mysql/mysql.h>
 
@@ -15,12 +15,14 @@
 #include "80211_parse.h"
 #include "utils.h"
 
-sqlite3 * db = 0;
+// sqlite3 * db = 0;
 MYSQL my_connection; 
 void CatchShutdown(int sig) {
-    if(db!=0){
-        sqlite3_close(db);
-    }
+    // if(db!=0){
+    //     sqlite3_close(db);
+    // }
+    shutdown_refresh_config();
+    mysql_close(&my_connection);
     exit(1);
 }
 
@@ -62,7 +64,7 @@ addr3 varchar(20),\
         printf("db open success!\n");
         mysql_query(&my_connection,create_table_sql);
     }else{
-        printf("can't open db: ");
+        printf("can't open db\n");
         return 0;
     }
     return 1;
@@ -108,31 +110,23 @@ void do_parse(u_char* buff){
     struct std_80211 s_80211;
     parse80211(p,frame_len,&s_80211);
 
-    sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`) values ('%s','%s','%s','%s','%s','%s','%s');"
-        ,s_80211.type
-        ,s_80211.subtype
-        ,s_80211.tofrom
-        ,s_80211.mac_addr1
-        ,s_80211.mac_addr2
-        ,s_80211.mac_addr3
-        ,time_str
-    );
+    if(!subtype_in_config_filter(s_80211.subtype)){
+        sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`) values ('%s','%s','%s','%s','%s','%s','%s');"
+            ,s_80211.type
+            ,s_80211.subtype
+            ,s_80211.tofrom
+            ,s_80211.mac_addr1
+            ,s_80211.mac_addr2
+            ,s_80211.mac_addr3
+            ,time_str
+        );
 
-    // printf("%s\n",sql);
 
-    int result=mysql_query(&my_connection,sql);
-    if(result!=0){
-        printf("insert faile\n");
+        int result=mysql_query(&my_connection,sql);
+        if(result!=0){
+            printf("insert faile\n");
+        }
     }
-
-/*
-    char * pErrMsg = 0;
-    int result = sqlite3_exec( db, sql, 0, 0, &pErrMsg);
-    if(result != SQLITE_OK){
-        printf("insert faile:%s\n",pErrMsg);
-        sqlite3_free(pErrMsg);
-    }
-*/
 }
 
 u_char pre_read_buff[BUFSIZ]="";
@@ -172,6 +166,7 @@ int main(int argc, char const *argv[]){
     signal(SIGHUP, CatchShutdown);
     signal(SIGQUIT, CatchShutdown);
     if(initDB()){
+    initConfig();
         while(1){
             int serverSocket;
             int rc=initSocket(8000,&serverSocket);
