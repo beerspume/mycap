@@ -20,7 +20,7 @@ int parseRadioHeader(const u_char* pkg_data,struct std_rt_header* header){
 	uint32_t search_present=header->present;
 	while((search_present&(1<<RADIOTAP_PRESENC_EXT))){
 		header->has_ExtendedPresence=1;
-		search_present=convertToLittleEndian16(read_p);
+		search_present=convertToLittleEndian32(read_p);
 		read_p+=sizeof(uint32_t);
 	}
 
