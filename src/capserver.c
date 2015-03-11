@@ -127,7 +127,7 @@ void do_parse(u_char* buff){
         // if(result!=0){
         //     printf("insert faile\n");
         // }
-        printf("%d,%d",rt_header.v_AntennaSignal,rt_header.v_AntennaNoise);
+        printf("%d,%d\n",rt_header.v_AntennaSignal,rt_header.v_AntennaNoise);
     }
 }
 
