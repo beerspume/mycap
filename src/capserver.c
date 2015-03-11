@@ -111,7 +111,7 @@ void do_parse(u_char* buff){
     parse80211(p,frame_len,&s_80211);
 
     if(!subtype_in_config_filter(s_80211.subtype)){
-        sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`) values ('%s','%s','%s','%s','%s','%s','%s');"
+        sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s',%d);"
             ,s_80211.type
             ,s_80211.subtype
             ,s_80211.tofrom
@@ -119,6 +119,7 @@ void do_parse(u_char* buff){
             ,s_80211.mac_addr2
             ,s_80211.mac_addr3
             ,time_str
+            ,rt_header.v_AntennaSignal
         );
 
 
