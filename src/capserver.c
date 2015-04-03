@@ -139,9 +139,6 @@ void do_parse(u_char* buff,struct socket_thread* _st){
 
     char source[20]="";
     getStrProperty((const char*)buff,"source",source);
-    if(strlen(source)!=17){
-        printf("%s\n",buff);
-    }
     int caplen;
     getIntProperty((const char*)buff,"len",&caplen);
     char time_str[30]="";
@@ -149,7 +146,10 @@ void do_parse(u_char* buff,struct socket_thread* _st){
     char _p_data[BUFSIZ];
     getStrProperty((const char*)buff,"data",_p_data);
 
-    
+    if(strlen(source)!=17 || caplen==0 || strlen(_p_data)==0){
+        printf("%s\n",buff);
+    }
+
     u_char data[BUFSIZ];
     int data_len;
     data_len=base64_decode((const char*)_p_data,data);
