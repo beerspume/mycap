@@ -36,7 +36,9 @@ tofrom varchar(20),\
 addr1 varchar(20),\
 addr2 varchar(20),\
 addr3 varchar(20),\
-`time` varchar(50)\
+`time` varchar(50),\
+antenna_signal int(11) default 0,\
+source varchar(20)\
 );";
 /*
     char * pErrMsg = 0;
@@ -90,6 +92,8 @@ int initSocket(int port,int* serverSocket){
 
 char sql[1024];
 void do_parse(u_char* buff){
+    char source[20]="";
+    getStrProperty((const char*)buff,"source",source);
     int caplen;
     getIntProperty((const char*)buff,"len",&caplen);
     char time_str[30]="";
@@ -111,7 +115,8 @@ void do_parse(u_char* buff){
     parse80211(p,frame_len,&s_80211);
 
     if(!subtype_in_config_filter(s_80211.subtype)){
-        sprintf(sql,"insert into frame (`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s',%d);"
+        sprintf(sql,"insert into frame (source,`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s','%s',%d);"
+            ,source
             ,s_80211.type
             ,s_80211.subtype
             ,s_80211.tofrom

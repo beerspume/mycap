@@ -44,20 +44,60 @@ const char* convertToBinartString(uint32_t number,int maxlen){
     return BinaryNumber;
 }
 
+struct tmp_packet
+{
+    const struct pcap_pkthdr *header;
+    const u_char *packet;
+};
 
+int filter(const struct pcap_pkthdr *header, const u_char *packet){
+    u_char* read_p=(u_char*)packet;
+    uint16_t radio_len=convertToLittleEndian16(read_p+2);
+    uint8_t type_int=*(uint8_t*)(read_p+radio_len);
+    type_int=(type_int & 0b11111100);
+    if(type_int==0x48 || type_int==0x40){
+        return 1;
+    }else{
+        return 0;
+    }
+
+};
 void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
     if(packet!=NULL){
-        // bin_print(header,packet);
+        if(filter(header,packet)==0)return;
+        bin_print(header,packet);
 
-        struct std_rt_header rt_header;
-        struct std_80211 s_80211;
-        parsePacket(header,packet,&rt_header,&s_80211);
-        if(!subtype_in_config_filter(s_80211.subtype)){
-            spy_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-                s_80211.type,s_80211.subtype,s_80211.tofrom
-                ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
-                ,utils_S2T(header->ts.tv_sec));
-        }
+        // struct std_rt_header rt_header;
+        // struct std_80211 s_80211;
+        // parsePacket(header,packet,&rt_header,&s_80211);
+
+
+        // if(!subtype_in_config_filter(s_80211.subtype)){
+        // if(s_80211.type_int==0x08
+        // &&(mac_in_config(s_80211.mac_addr1)
+        // || mac_in_config(s_80211.mac_addr2)
+        // || mac_in_config(s_80211.mac_addr3))
+        // ){
+            // printf("%s\t%s\t%s\t%s\t%s\t%s\t%d\n",
+            //     s_80211.type,s_80211.subtype,
+            //     s_80211.mac_addr1,
+            //     s_80211.mac_addr2,
+            //     s_80211.mac_addr3,
+            //     utils_S2T(header->ts.tv_sec),
+            //     rt_header.v_AntennaSignal
+            // );
+            // for(int i=0;i<header->caplen;i++){
+            //     printf("%02x ",packet[i]);
+            // }
+            // printf("\n");
+        // }
+
+        // if(!subtype_in_config_filter(s_80211.subtype)){
+        //     spy_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+        //         s_80211.type,s_80211.subtype,s_80211.tofrom
+        //         ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
+        //         ,utils_S2T(header->ts.tv_sec));
+        // }
     }
 }
 int main(int argc, char  *argv[])
@@ -82,6 +122,9 @@ int main(int argc, char  *argv[])
                 break;
         }
     };
+    set_config_device_name(device);
+
+    return 0;
 
     signal(SIGINT, CatchShutdown);
     signal(SIGTERM, CatchShutdown);
@@ -90,8 +133,8 @@ int main(int argc, char  *argv[])
 
     char errBuf[1024]="";
 
-    
-    pd=pcap_open_live(device,2048,1,1000,errBuf);
+
+    pd=pcap_open_live(device,BUFSIZ,1,1000,errBuf);
     if(pd!=NULL){
         printf("success: device %s\n",device);
 

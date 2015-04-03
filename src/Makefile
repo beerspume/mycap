@@ -18,6 +18,6 @@ ifndef OPENWRT_BUILD
 	$(CC) $(CFLAGS) $(LDFLAGS) -Wall -g -o capserver capserver.c $(SERVER_SRC) -lpcap -lpthread -lsqlite3 -lmysqlclient -lm -std=gnu99 
 endif
 	$(CC) $(CFLAGS) $(LDFLAGS) -Wall -g -o mycap main.c $(CLIENT_SRC) -lpcap -lpthread -lm -std=gnu99 
-
+	$(CC) $(CFLAGS) $(LDFLAGS) -Wall -g -o test test.c $(CLIENT_SRC) -lpcap -lpthread -lm -std=gnu99
 clean:
 	rm -rf *.o mycap capserver mycap.db

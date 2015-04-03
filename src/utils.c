@@ -261,6 +261,7 @@ void shutdown_refresh_config(){
 }
 void config_free(){
     free(my_config.filter_subtype);
+    free(my_config.mac);
     memset(&my_config,0,sizeof(struct config));
 };
 struct config* initConfig(){
@@ -294,8 +295,27 @@ struct config* initConfig(){
                 for(int i=0;i<array_size;i++){
                     cJSON* c_item=cJSON_GetArrayItem(c_j,i);
                     strcpy(c_c_filter_subtype,c_item->valuestring);
-                    c_c_filter_subtype+=strlen(c_item->valuestring)+1;;
+                    c_c_filter_subtype+=strlen(c_item->valuestring)+1;
                 }
+
+                c_j=cJSON_GetObjectItem(json,"mac");
+                array_size=cJSON_GetArraySize(c_j);
+                total_size=0;
+                for(int i=0;i<array_size;i++){
+                    cJSON* c_item=cJSON_GetArrayItem(c_j,i);
+                    total_size+=strlen(c_item->valuestring)+1;
+                }
+                total_size+=2;
+                my_config.mac=malloc(total_size);
+                memset(my_config.mac,0,total_size);
+                char* c_c_mac=my_config.mac;
+                for(int i=0;i<array_size;i++){
+                    cJSON* c_item=cJSON_GetArrayItem(c_j,i);
+                    strcpy(c_c_mac,c_item->valuestring);
+                    c_c_mac+=strlen(c_item->valuestring)+1;
+                }
+
+
             }else{
                 printf("invalid json!\n");
             }
@@ -321,6 +341,64 @@ int subtype_in_config_filter(char* subtype){
     return 0;
 };
 
+int mac_in_config(char* mac){
+    char* c_c_mac=my_config.mac;
+    if(c_c_mac!=NULL){
+        while(1){
+            int len=strlen(c_c_mac);
+            if(len==0)break;
+            char buff[30];
+            strcpy(buff,c_c_mac);
+            if(strcmp(buff,mac)==0)return 1;
+            c_c_mac+=len+1;
+        }
+    }
+    return 0;
+}
+
 struct config* getConfig(){
     return &my_config;
+}
+
+
+static char DEVICE_MAC[20] = "";
+char* readDeviceMac(char* device_name){
+    struct ifreq ifreq;
+
+    int sock = socket(AF_INET,SOCK_STREAM,0);
+    if(sock < 0)
+    {
+        return NULL;
+    }
+    strcpy(ifreq.ifr_name,device_name);
+    if(ioctl(sock,SIOCGIFHWADDR,&ifreq) < 0)
+    {
+        close(sock);
+        return NULL;
+    }
+
+    int i = 0;
+    for(i = 0; i < 6; i++){
+        sprintf(DEVICE_MAC+3*i, "%02X:", (unsigned char)ifreq.ifr_hwaddr.sa_data[i]);
+    }
+    DEVICE_MAC[strlen(DEVICE_MAC) - 1] = 0;
+    close(sock);
+                
+    return DEVICE_MAC;
+}
+
+void set_config_device_name(char* device_name){
+    strcpy(my_config.device_name,device_name);
+    strcpy(my_config.device_mac,"");
+
+}
+const char* get_config_device_name(){
+    return my_config.device_name;
+}
+const char* get_config_device_mac(){
+    if(strlen(my_config.device_mac)==0){
+        char* tmp=readDeviceMac(my_config.device_name);
+        strcpy(my_config.device_mac,tmp);
+    }
+    return my_config.device_mac;
 }

@@ -123,7 +123,12 @@ void stop_trans(){
 char base64_buff[1024];
 void bin_print(const struct pcap_pkthdr *header, const u_char* packet){
 	memset(base64_buff,0,1024);
-	sprintf(base64_buff,"len=%d;time=%s;utime;=%ld;data=",header->caplen,utils_S2T(header->ts.tv_sec),header->ts.tv_usec);
+	sprintf(base64_buff
+		,"source=%s;len=%d;time=%s;utime;=%ld;data="
+		,get_config_device_mac()
+		,header->caplen
+		,utils_S2T(header->ts.tv_sec)
+		,header->ts.tv_usec);
 	char* data_buff=base64_buff+strlen(base64_buff);
 	base64_encode(packet,data_buff,header->caplen);
 
