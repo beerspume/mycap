@@ -139,6 +139,9 @@ void do_parse(u_char* buff,struct socket_thread* _st){
 
     char source[20]="";
     getStrProperty((const char*)buff,"source",source);
+    if(strlen(source)!=17){
+        printf("%s\n",buff);
+    }
     int caplen;
     getIntProperty((const char*)buff,"len",&caplen);
     char time_str[30]="";
