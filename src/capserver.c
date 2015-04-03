@@ -148,6 +148,7 @@ void do_parse(u_char* buff,struct socket_thread* _st){
 
     if(strlen(source)!=17 || caplen==0 || strlen(_p_data)==0){
         printf("%s\n",buff);
+        return；
     }
 
     u_char data[BUFSIZ];
