@@ -132,7 +132,7 @@ void do_parse(u_char* buff){
     struct std_80211 s_80211;
     parse80211(p,frame_len,&s_80211);
 
-    if(!subtype_in_config_filter(s_80211.subtype)){
+    // if(!subtype_in_config_filter(s_80211.subtype)){
         sprintf(sql,"insert into frame (source,`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s','%s',%d);"
             ,source
             ,s_80211.type
@@ -149,7 +149,7 @@ void do_parse(u_char* buff){
         int result=mysql_query(&my_connection,sql);
         if(result!=0){
             printf("insert faile\n");
-        }
+        // }
     }
 }
 
