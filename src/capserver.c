@@ -219,6 +219,23 @@ void do_recv(u_char* buff,int len,struct socket_thread* _st){
 
 }
 
+void _stopThread(struct socket_thread* _st){
+    if(_st->sock!=0){
+        close(_st->sock);
+        _st->sock=0;
+    }
+    if(_st->conn!=NULL){
+        mysql_close(_st->conn);
+        free(_st->conn);
+        _st->conn=NULL;
+    }
+    if(_st->t!=NULL){
+        _st->running=0;
+        free(_st->t);
+        _st->t=NULL;
+    }    
+}
+
 void* socket_loop(void* arg){
     struct socket_thread* _st=(struct socket_thread*)arg;
     if(_st!=NULL){
@@ -228,23 +245,19 @@ void* socket_loop(void* arg){
         while((len=recv(_st->sock,buf,BUFSIZ,0))>0 && _st->running==1){
             do_recv(buf,len,_st);
         }
-        close(_st->sock);
+        _stopThread(_st);
     }
     return NULL;
 }
 
-void stopThread(struct socket_thread* st){
-    if(st->t!=NULL){
-        st->running=0;
-        pthread_join(*st->t,NULL);
-        free(st->t);
-        st->t=NULL;
+
+
+void stopThread(struct socket_thread* _st){
+    if(_st->t!=NULL){
+        _st->running=0;
+        pthread_join(*_st->t,NULL);
     }
-    if(st->conn!=NULL){
-        mysql_close(st->conn);
-        free(st->conn);
-        st->conn=NULL;
-    }
+    _stopThread(_st);
 }
 void clearThread(){
     for(int i=0;i<10;i++){
