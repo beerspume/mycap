@@ -124,8 +124,6 @@ int main(int argc, char  *argv[])
     };
     set_config_device_name(device);
 
-    return 0;
-
     signal(SIGINT, CatchShutdown);
     signal(SIGTERM, CatchShutdown);
     signal(SIGHUP, CatchShutdown);

@@ -16,12 +16,30 @@
 #include "utils.h"
 
 // sqlite3 * db = 0;
+
+struct socket_thread
+{
+    pthread_t* t;
+    int sock;
+    int running;
+};
+
+
+struct socket_thread st[10];
+
 MYSQL my_connection; 
+
+void* socket_loop(void* arg);
+void stopThread(struct socket_thread* st);
+void clearThread();
+struct socket_thread* getFreeST();
+
 void CatchShutdown(int sig) {
     // if(db!=0){
     //     sqlite3_close(db);
     // }
     shutdown_refresh_config();
+    clearThread();
     mysql_close(&my_connection);
     exit(1);
 }
@@ -166,11 +184,49 @@ void do_recv(u_char* buff,int len){
 
 }
 
+void* socket_loop(void* arg){
+    struct socket_thread* _st=(struct socket_thread*)arg;
+    if(_st!=NULL){
+        _st->running=1;
+        int len;
+        u_char buf[BUFSIZ];
+        while((len=recv(_st->sock,buf,BUFSIZ,0))>0 && _st->running==1){
+            do_recv(buf,len);
+        }
+        close(_st->sock);
+    }
+    return NULL;
+}
+
+void stopThread(struct socket_thread* st){
+    if(st->t!=NULL){
+        st->running=0;
+        pthread_join(*st->t,NULL);
+        free(st->t);
+        st->t=NULL;
+    }
+}
+void clearThread(){
+    for(int i=0;i<10;i++){
+        stopThread(&st[i]);
+    }
+}
+struct socket_thread* getFreeST(){
+    for(int i=0;i<10;i++){
+        if(st[i].t==NULL){
+            st[i].t=malloc(sizeof(pthread_t));
+            return &st[i];
+        }
+    }
+    return NULL;
+}
+
 int main(int argc, char const *argv[]){
     signal(SIGINT, CatchShutdown);
     signal(SIGTERM, CatchShutdown);
     signal(SIGHUP, CatchShutdown);
     signal(SIGQUIT, CatchShutdown);
+    clearThread();
     if(initDB()){
     initConfig();
         while(1){
@@ -193,11 +249,18 @@ int main(int argc, char const *argv[]){
                (struct sockaddr*) &clientAddr,
                (socklen_t*) &clientAddrSize);
             close(serverSocket);
-            int len;
-            u_char buf[BUFSIZ];
-            while((len=recv(sock,buf,BUFSIZ,0))>0){
-                do_recv(buf,len);
+            struct socket_thread* _st=getFreeST();
+            if(_st!=NULL){
+                _st->sock=sock;
+                pthread_create(_st->t,NULL,socket_loop,(void *)_st);
+            }else{
+                close(sock);
             }
+            // int len;
+            // u_char buf[BUFSIZ];
+            // while((len=recv(sock,buf,BUFSIZ,0))>0){
+            //     do_recv(buf,len);
+            // }
         }
     }
     CatchShutdown(-1);
