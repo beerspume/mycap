@@ -154,6 +154,10 @@ void do_parse(u_char* buff,struct socket_thread* _st){
     u_char data[BUFSIZ];
     int data_len;
     data_len=base64_decode((const char*)_p_data,data);
+    if(data_len!=caplen){
+        printf("%s\n",buff);
+        return；
+    }
     struct std_rt_header rt_header;
     parseRadioHeader(data,&rt_header);
 
