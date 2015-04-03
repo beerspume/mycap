@@ -22,12 +22,13 @@ struct socket_thread
     pthread_t* t;
     int sock;
     int running;
+    MYSQL* conn;
 };
 
 
 struct socket_thread st[10];
 
-MYSQL my_connection; 
+// MYSQL my_connection; 
 
 void* socket_loop(void* arg);
 void stopThread(struct socket_thread* st);
@@ -40,8 +41,22 @@ void CatchShutdown(int sig) {
     // }
     shutdown_refresh_config();
     clearThread();
-    mysql_close(&my_connection);
+    // mysql_close(&my_connection);
     exit(1);
+}
+
+MYSQL* getConnection(){
+    MYSQL* conn=malloc(sizeof(MYSQL));
+    mysql_init(conn);
+    if(mysql_real_connect(conn,"127.0.0.1"  
+                            ,"mycap","123456","mycap",3306,NULL,0)){  
+        printf("db open success!\n");
+        return conn;
+    }else{
+        printf("can't open db\n");
+        return NULL;
+    }
+
 }
 
 int initDB(){
@@ -78,13 +93,12 @@ source varchar(20)\
     }
     printf("init table success!\n");
 */
-    mysql_init(&my_connection);
-    if(mysql_real_connect(&my_connection,"127.0.0.1"  
-                            ,"mycap","123456","mycap",3306,NULL,0)){  
-        printf("db open success!\n");
-        mysql_query(&my_connection,create_table_sql);
+    MYSQL* conn=getConnection();
+    if(conn!=NULL){
+        mysql_query(conn,create_table_sql);
+        mysql_close(conn);
+        free(conn);
     }else{
-        printf("can't open db\n");
         return 0;
     }
     return 1;
@@ -109,7 +123,20 @@ int initSocket(int port,int* serverSocket){
 }
 
 char sql[1024];
-void do_parse(u_char* buff){
+void do_parse(u_char* buff,struct socket_thread* _st){
+
+    if(_st==NULL){
+        printf("why I can not found socket_threadwhen do_parse?\n");
+        return;
+    }
+    if(_st->conn==NULL){
+        _st->conn=getConnection();
+        if(_st->conn==NULL){
+            printf("can not get connection when do_parse\n");
+            return;
+        }
+    }
+
     char source[20]="";
     getStrProperty((const char*)buff,"source",source);
     int caplen;
@@ -146,7 +173,7 @@ void do_parse(u_char* buff){
         );
 
 
-        int result=mysql_query(&my_connection,sql);
+        int result=mysql_query(_st->conn,sql);
         if(result!=0){
             printf("insert faile\n");
         // }
@@ -154,7 +181,7 @@ void do_parse(u_char* buff){
 }
 
 u_char pre_read_buff[BUFSIZ]="";
-void do_recv(u_char* buff,int len){
+void do_recv(u_char* buff,int len,struct socket_thread* _st){
     u_char temp_buff[BUFSIZ];
     strcpy((char*)temp_buff,(const char *)pre_read_buff);
     memset(pre_read_buff,0,BUFSIZ);
@@ -178,7 +205,7 @@ void do_recv(u_char* buff,int len){
             current_temp_buff=temp_buff;
             current_buff+=zero_index+1;
             remain_len=len-(current_buff-buff);
-            do_parse(current_temp_buff);
+            do_parse(current_temp_buff,_st);
         }
     }
 
@@ -191,7 +218,7 @@ void* socket_loop(void* arg){
         int len;
         u_char buf[BUFSIZ];
         while((len=recv(_st->sock,buf,BUFSIZ,0))>0 && _st->running==1){
-            do_recv(buf,len);
+            do_recv(buf,len,_st);
         }
         close(_st->sock);
     }
@@ -204,6 +231,11 @@ void stopThread(struct socket_thread* st){
         pthread_join(*st->t,NULL);
         free(st->t);
         st->t=NULL;
+    }
+    if(st->conn!=NULL){
+        mysql_close(st->conn);
+        free(st->conn);
+        st->conn=NULL;
     }
 }
 void clearThread(){
