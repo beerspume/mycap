@@ -16,6 +16,7 @@ int parseRadioHeader(const u_char* pkg_data,struct std_rt_header* header){
 	header->len=convertToLittleEndian16(read_p);
 	read_p+=sizeof(uint16_t);
 	header->present=convertToLittleEndian32(read_p);
+
 	read_p+=sizeof(uint32_t);
 	uint32_t search_present=header->present;
 	while((search_present&(1<<RADIOTAP_PRESENC_EXT))){
@@ -23,6 +24,10 @@ int parseRadioHeader(const u_char* pkg_data,struct std_rt_header* header){
 		search_present=convertToLittleEndian32(read_p);
 		read_p+=sizeof(uint32_t);
 	}
+
+    if(convertToLittleEndian32(read_p)==0){// TL-WR702N Router have 32bit 0 after PRESENT
+        read_p+=sizeof(uint32_t);
+    }
 
 	if(header->present&(1<<RADIOTAP_PRESENC_TSFT)){
 		header->has_TSFT=1;

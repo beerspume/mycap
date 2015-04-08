@@ -70,38 +70,26 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
         // struct std_rt_header rt_header;
         // struct std_80211 s_80211;
         // parsePacket(header,packet,&rt_header,&s_80211);
-
-
-        // if(!subtype_in_config_filter(s_80211.subtype)){
-        // if(s_80211.type_int==0x08
-        // &&(mac_in_config(s_80211.mac_addr1)
-        // || mac_in_config(s_80211.mac_addr2)
-        // || mac_in_config(s_80211.mac_addr3))
-        // ){
-            // printf("%s\t%s\t%s\t%s\t%s\t%s\t%d\n",
-            //     s_80211.type,s_80211.subtype,
-            //     s_80211.mac_addr1,
-            //     s_80211.mac_addr2,
-            //     s_80211.mac_addr3,
-            //     utils_S2T(header->ts.tv_sec),
-            //     rt_header.v_AntennaSignal
-            // );
-            // for(int i=0;i<header->caplen;i++){
-            //     printf("%02x ",packet[i]);
-            // }
-            // printf("\n");
+        // printf("%s\t%s\t%s\t%s\t%s\t%s\t%d\n",
+        //     s_80211.type,s_80211.subtype,
+        //     s_80211.mac_addr1,
+        //     s_80211.mac_addr2,
+        //     s_80211.mac_addr3,
+        //     utils_S2T(header->ts.tv_sec),
+        //     rt_header.v_AntennaSignal
+        // );
+        // for(int i=0;i<header->caplen;i++){
+        //     printf("%02x ",packet[i]);
         // }
-
-        // if(!subtype_in_config_filter(s_80211.subtype)){
-        //     spy_printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-        //         s_80211.type,s_80211.subtype,s_80211.tofrom
-        //         ,s_80211.mac_addr1,s_80211.mac_addr2,s_80211.mac_addr3
-        //         ,utils_S2T(header->ts.tv_sec));
-        // }
+        // printf("\n");
     }
 }
+
 int main(int argc, char  *argv[])
  {
+    daemon(0,0);
+
+
     initConfig();
 
     int ch;
