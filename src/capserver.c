@@ -156,7 +156,7 @@ void do_parse(u_char* buff,struct socket_thread* _st){
     data_len=base64_decode((const char*)_p_data,data);
     if(data_len!=caplen){
         printf("%s\n",buff);
-        printf("%d\n",data_len);
+        printf("%d,%d\n",data_len,caplen);
         return;
     }
     struct std_rt_header rt_header;
