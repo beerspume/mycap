@@ -17,6 +17,8 @@
 
 // sqlite3 * db = 0;
 
+#define MY_BUFSIZ 1024
+
 struct socket_thread
 {
     pthread_t* t;
@@ -145,7 +147,7 @@ void do_parse(char* buff,struct socket_thread* _st){
     getIntProperty((const char*)buff,"len",&caplen);
     char time_str[30]="";
     getStrProperty((const char*)buff,"time",time_str);
-    char _p_data[BUFSIZ];
+    char _p_data[MY_BUFSIZ];
     getStrProperty((const char*)buff,"data",_p_data);
 
     if(strlen(source)!=17 || caplen==0 || strlen(_p_data)==0){
@@ -153,7 +155,7 @@ void do_parse(char* buff,struct socket_thread* _st){
         return;
     }
 
-    u_char data[BUFSIZ];
+    u_char data[MY_BUFSIZ];
     int data_len;
     data_len=base64_decode((const char*)_p_data,data);
     if(data_len!=caplen){
@@ -193,9 +195,9 @@ void do_parse(char* buff,struct socket_thread* _st){
 
 // u_char pre_read_buff[BUFSIZ]="";
 void do_recv(char* buff_0,struct socket_thread* _st){
-    char buff[BUFSIZ];
+    char buff[MY_BUFSIZ];
     strcpy(buff,(const char*)buff_0);
-    char data[BUFSIZ];
+    char data[MY_BUFSIZ];
     strcpy(data,(const char*)_st->pre_read_buff);
     _st->pre_read_buff[0]='\0';
 
@@ -255,8 +257,8 @@ void* socket_loop(void* arg){
     if(_st!=NULL){
         _st->running=1;
         int len;
-        char buf[BUFSIZ];
-        while((len=recv(_st->sock,buf,BUFSIZ,0))>0 && _st->running==1){
+        char buf[MY_BUFSIZ];
+        while((len=recv(_st->sock,buf,MY_BUFSIZ-1,0))>0 && _st->running==1){
             buf[len]='\0';
             do_recv(buf,_st);
         }
@@ -283,7 +285,7 @@ struct socket_thread* getFreeST(){
     for(int i=0;i<10;i++){
         if(st[i].t==NULL){
             st[i].t=malloc(sizeof(pthread_t));
-            st[i].pre_read_buff=malloc(BUFSIZ);
+            st[i].pre_read_buff=malloc(MY_BUFSIZ);
             st[i].pre_read_buff[0]='\0';
             return &st[i];
         }
