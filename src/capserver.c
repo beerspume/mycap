@@ -225,13 +225,7 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         do_parse(data,_st);
 
     }else{
-        // printf("data:%s\nbuff:%s\n",
-        //     data,buff
-        //     );
         if(strlen((const char*)data)+strlen((const char*)buff)>MY_BUFSIZ){
-            // printf("data:%s\nbuff:%s\n",
-            //     data,buff
-            //     );
             _st->pre_read_buff[0]='\0';
         }else{
             strcpy(_st->pre_read_buff,(const char*)data);
@@ -270,7 +264,8 @@ void* socket_loop(void* arg){
         char buf[MY_BUFSIZ];
         while((len=recv(_st->sock,buf,MY_BUFSIZ-1,0))>0 && _st->running==1){
             buf[len]='\0';
-            do_recv(buf,_st);
+            printf("%s\n",buf);
+            // do_recv(buf,_st);
         }
         _stopThread(_st);
     }
