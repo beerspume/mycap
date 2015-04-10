@@ -126,7 +126,7 @@ int initSocket(int port,int* serverSocket){
 }
 
 void do_parse(char* buff,struct socket_thread* _st){
-    // printf("%s\n",buff);
+    printf("%s\n",buff);
     return;
 
     if(_st==NULL){
