@@ -267,6 +267,7 @@ void* socket_loop(void* arg){
             char* p_str_start=buf;
             for(int i=0;i<MY_BUFSIZ;i++){
                 if(buf[i]=='\0'){
+                    printf("%s\n",p_str_start);
                     do_recv(p_str_start,_st);
                     p_str_start+=i+1;
                 }
