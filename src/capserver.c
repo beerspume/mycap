@@ -122,10 +122,10 @@ int initSocket(int port,int* serverSocket){
        sizeof(struct sockaddr));
     return rc;
 }
+// void do_parse(char* buff,struct socket_thread* _st){
+//     printf("%s\n",buff);
+// }
 void do_parse(char* buff,struct socket_thread* _st){
-    printf("%s\n",buff);
-}
-void do_parse_2(char* buff,struct socket_thread* _st){
 
     if(_st==NULL){
         printf("why I can not found socket_threadwhen do_parse?\n");
