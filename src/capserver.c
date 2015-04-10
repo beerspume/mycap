@@ -126,8 +126,8 @@ int initSocket(int port,int* serverSocket){
 }
 
 void do_parse(char* buff,struct socket_thread* _st){
-    printf("%s\n",buff);
-    return;
+    // printf("%s\n",buff);
+    // return;
 
     if(_st==NULL){
         printf("why I can not found socket_threadwhen do_parse?\n");
@@ -225,11 +225,14 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         do_parse(data,_st);
 
     }else{
-        printf("data:%s\n",data);
-        printf("buff:%s\n",buff);
-        // strcpy(_st->pre_read_buff,(const char*)data);
-        // strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
-        //  ,(const char*)buff);
+        if(strlen((const char*)data)+strlen((const char*)buff)>MY_BUFSIZ){
+            _st->pre_read_buff[0]='\0';
+        }else{
+
+        }
+        strcpy(_st->pre_read_buff,(const char*)data);
+        strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
+         ,(const char*)buff);
     }
 }
 
