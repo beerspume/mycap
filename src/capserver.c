@@ -264,7 +264,8 @@ void* socket_loop(void* arg){
         char buf[MY_BUFSIZ];
         while((len=recv(_st->sock,buf,MY_BUFSIZ-1,0))>0 && _st->running==1){
             buf[len]='\0';
-            printf("%s\n",buf);
+            printf("recv_len=%d ; strlen=%d\n",len,strlen((const char*)buf));
+
             // do_recv(buf,_st);
         }
         _stopThread(_st);
