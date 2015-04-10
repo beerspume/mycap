@@ -229,9 +229,9 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         //     data,buff
         //     );
         if(strlen((const char*)data)+strlen((const char*)buff)>MY_BUFSIZ){
-            printf("data:%s\nbuff:%s\n",
-                data,buff
-                );
+            // printf("data:%s\nbuff:%s\n",
+            //     data,buff
+            //     );
             _st->pre_read_buff[0]='\0';
         }else{
             strcpy(_st->pre_read_buff,(const char*)data);
