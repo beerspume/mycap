@@ -225,9 +225,10 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         do_parse(data,_st);
 
     }else{
-        strcpy(_st->pre_read_buff,(const char*)data);
-        strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
-         ,(const char*)buff);
+        printf("%d\n",strlen((const char*)buff));
+        // strcpy(_st->pre_read_buff,(const char*)data);
+        // strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
+        //  ,(const char*)buff);
     }
 }
 
