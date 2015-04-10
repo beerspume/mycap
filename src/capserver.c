@@ -25,7 +25,7 @@ struct socket_thread
     int sock;
     int running;
     MYSQL* conn;
-    u_char* pre_read_buff;
+    char* pre_read_buff;
 };
 
 
@@ -224,10 +224,10 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         strcpy(last_data,(const char*)buff);
         do_parse(data,_st);
 
-    // }else{
-    //     char* last_data=(char*)(data+strlen((const char*)data));
-    //     strcpy(last_data,(const char*)buff);
-    //     strcpy((char*)_st->pre_read_buff,(const char*)data);
+    }else{
+        strcpy(_st->pre_read_buff,(const char*)data);
+        strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
+         ,(const char*)buff);
     }
 }
 
