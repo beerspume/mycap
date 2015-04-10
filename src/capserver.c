@@ -122,9 +122,10 @@ int initSocket(int port,int* serverSocket){
        sizeof(struct sockaddr));
     return rc;
 }
-
-char sql[1024];
-void do_parse(u_char* buff,struct socket_thread* _st){
+void do_parse(char* buff,struct socket_thread* _st){
+    printf("%s\n",buff);
+}
+void do_parse_2(char* buff,struct socket_thread* _st){
 
     if(_st==NULL){
         printf("why I can not found socket_threadwhen do_parse?\n");
@@ -140,7 +141,7 @@ void do_parse(u_char* buff,struct socket_thread* _st){
 
     char source[20]="";
     getStrProperty((const char*)buff,"source",source);
-    int caplen;
+    int caplen=0;
     getIntProperty((const char*)buff,"len",&caplen);
     char time_str[30]="";
     getStrProperty((const char*)buff,"time",time_str);
@@ -169,18 +170,18 @@ void do_parse(u_char* buff,struct socket_thread* _st){
     struct std_80211 s_80211;
     parse80211(p,frame_len,&s_80211);
 
-    // if(!subtype_in_config_filter(s_80211.subtype)){
-        sprintf(sql,"insert into frame (source,`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s','%s',%d);"
-            ,source
-            ,s_80211.type
-            ,s_80211.subtype
-            ,s_80211.tofrom
-            ,s_80211.mac_addr1
-            ,s_80211.mac_addr2
-            ,s_80211.mac_addr3
-            ,time_str
-            ,rt_header.v_AntennaSignal
-        );
+    char sql[1024];
+    sprintf(sql,"insert into frame (source,`type`,subtype,tofrom,addr1,addr2,addr3,`time`,antenna_signal) values ('%s','%s','%s','%s','%s','%s','%s','%s',%d);"
+        ,source
+        ,s_80211.type
+        ,s_80211.subtype
+        ,s_80211.tofrom
+        ,s_80211.mac_addr1
+        ,s_80211.mac_addr2
+        ,s_80211.mac_addr3
+        ,time_str
+        ,rt_header.v_AntennaSignal
+    );
 
 
         int result=mysql_query(_st->conn,sql);
@@ -191,34 +192,41 @@ void do_parse(u_char* buff,struct socket_thread* _st){
 }
 
 // u_char pre_read_buff[BUFSIZ]="";
-void do_recv(u_char* buff,int len,struct socket_thread* _st){
-    u_char temp_buff[BUFSIZ];
-    strcpy((char*)temp_buff,(const char *)_st->pre_read_buff);
-    memset(_st->pre_read_buff,0,BUFSIZ);
+void do_recv(char* buff_0,struct socket_thread* _st){
+    char buff[BUFSIZ];
+    strcpy(buff,(const char*)buff_0);
+    char data[BUFSIZ];
+    strcpy(data,(const char*)_st->pre_read_buff);
+    _st->pre_read_buff[0]='\0';
 
-    u_char* current_temp_buff=temp_buff+strlen((const char *)temp_buff);
-    u_char* current_buff=buff;
+    char* p_split_start=strstr((const char*)buff,"|-");
+    char* p_split_end=strstr((const char*)buff,"-|");
 
-    int remain_len=len-(current_buff-buff);
-    while(remain_len>0){
-        int zero_index=0;
-        for(zero_index=0;zero_index<remain_len;zero_index++){
-            if(current_buff[zero_index]==0) break;
-        }
-        if(zero_index>=remain_len && *(current_buff+zero_index)!='\0'){
-            memcpy(current_temp_buff,current_buff,zero_index);
-            *(current_temp_buff+zero_index)='\0';
-            strcpy((char*)_st->pre_read_buff,(const char *)temp_buff);
-            break;
-        }else{
-            memcpy(current_temp_buff,current_buff,zero_index+1);
-            current_temp_buff=temp_buff;
-            current_buff+=zero_index+1;
-            remain_len=len-(current_buff-buff);
-            do_parse(current_temp_buff,_st);
-        }
+    if(p_split_start!=NULL && p_split_end!=NULL && p_split_end>p_split_start){
+        p_split_end[0]='\0';
+        strcpy(data,(const char*)(p_split_start+2));
+        do_parse(data,_st);
+    } else if(p_split_start!=NULL && p_split_end!=NULL && p_split_end<p_split_start){
+        p_split_end[0]='\0';
+        char* last_data=(char*)(data+strlen((const char*)data));
+        strcpy(last_data,(const char*)buff);
+        do_parse(data,_st);
+
+        do_recv(p_split_start,_st);
+
+    }else if(p_split_start!=NULL && p_split_end==NULL){
+        strcpy((char*)_st->pre_read_buff,(const char*)(p_split_start+2));
+    }else if(p_split_start==NULL && p_split_end!=NULL){
+        p_split_end[0]='\0';
+        char* last_data=(char*)(data+strlen((const char*)data));
+        strcpy(last_data,(const char*)buff);
+        do_parse(data,_st);
+
+    }else{
+        char* last_data=(char*)(data+strlen((const char*)data));
+        strcpy(last_data,(const char*)buff);
+        strcpy((char*)_st->pre_read_buff,(const char*)data);
     }
-
 }
 
 void _stopThread(struct socket_thread* _st){
@@ -247,9 +255,10 @@ void* socket_loop(void* arg){
     if(_st!=NULL){
         _st->running=1;
         int len;
-        u_char buf[BUFSIZ];
+        char buf[BUFSIZ];
         while((len=recv(_st->sock,buf,BUFSIZ,0))>0 && _st->running==1){
-            do_recv(buf,len,_st);
+            buf[len]='\0';
+            do_recv(buf,_st);
         }
         _stopThread(_st);
     }
@@ -275,6 +284,7 @@ struct socket_thread* getFreeST(){
         if(st[i].t==NULL){
             st[i].t=malloc(sizeof(pthread_t));
             st[i].pre_read_buff=malloc(BUFSIZ);
+            st[i].pre_read_buff[0]='\0';
             return &st[i];
         }
     }
@@ -282,6 +292,15 @@ struct socket_thread* getFreeST(){
 }
 
 int main(int argc, char const *argv[]){
+    // char* buff_1="fasdfadklfjdlaks-|fdsfdas|-source=3C:46:D8:16:CA:";
+    // char* buff_2="B8;len=110;time=2015-04-10 04:08:22;utime=3018";
+    // char* buff_3="24;data=AAAkAC9AAKAgCAAAAAAAANtYav4HAQAAEAJsCcAArQAAAK0AQAAAAP///////wAhaiMiNP///////7AcAAABCAIECxYMEhgkMgQwSGBsLRo8CBf///8AAAAAAAAAAAAAAAAAAAAAAAAAAHAkEno=-|";
+    // struct socket_thread* _st=getFreeST();
+    // do_recv(buff_1,_st);
+    // do_recv(buff_2,_st);
+    // do_recv(buff_3,_st);
+    // _stopThread(_st);
+    // return 0;
     signal(SIGINT, CatchShutdown);
     signal(SIGTERM, CatchShutdown);
     signal(SIGHUP, CatchShutdown);
