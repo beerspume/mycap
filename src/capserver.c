@@ -218,16 +218,16 @@ void do_recv(char* buff_0,struct socket_thread* _st){
 
     }else if(p_split_start!=NULL && p_split_end==NULL){
         strcpy((char*)_st->pre_read_buff,(const char*)(p_split_start+2));
-    // }else if(p_split_start==NULL && p_split_end!=NULL){
-    //     p_split_end[0]='\0';
-    //     char* last_data=(char*)(data+strlen((const char*)data));
-    //     strcpy(last_data,(const char*)buff);
-    //     do_parse(data,_st);
-
-    }else{
+    }else if(p_split_start==NULL && p_split_end!=NULL){
+        p_split_end[0]='\0';
         char* last_data=(char*)(data+strlen((const char*)data));
         strcpy(last_data,(const char*)buff);
-        strcpy((char*)_st->pre_read_buff,(const char*)data);
+        do_parse(data,_st);
+
+    // }else{
+    //     char* last_data=(char*)(data+strlen((const char*)data));
+    //     strcpy(last_data,(const char*)buff);
+    //     strcpy((char*)_st->pre_read_buff,(const char*)data);
     }
 }
 
