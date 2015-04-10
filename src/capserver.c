@@ -126,7 +126,7 @@ int initSocket(int port,int* serverSocket){
 }
 
 void do_parse(char* buff,struct socket_thread* _st){
-    printf("%s\n",buff);
+    // printf("%s\n",buff);
     return;
 
     if(_st==NULL){
@@ -225,7 +225,8 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         do_parse(data,_st);
 
     }else{
-        printf("%d\n",strlen((const char*)buff));
+        printf("data:%s\n",data);
+        printf("buff:%s\n",buff);
         // strcpy(_st->pre_read_buff,(const char*)data);
         // strcpy((char*)_st->pre_read_buff+strlen((const char*)_st->pre_read_buff)
         //  ,(const char*)buff);
