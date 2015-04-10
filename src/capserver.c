@@ -23,6 +23,7 @@ struct socket_thread
     int sock;
     int running;
     MYSQL* conn;
+    u_char* pre_read_buff;
 };
 
 
@@ -189,11 +190,11 @@ void do_parse(u_char* buff,struct socket_thread* _st){
     }
 }
 
-u_char pre_read_buff[BUFSIZ]="";
+// u_char pre_read_buff[BUFSIZ]="";
 void do_recv(u_char* buff,int len,struct socket_thread* _st){
     u_char temp_buff[BUFSIZ];
-    strcpy((char*)temp_buff,(const char *)pre_read_buff);
-    memset(pre_read_buff,0,BUFSIZ);
+    strcpy((char*)temp_buff,(const char *)_st->pre_read_buff);
+    memset(_st->pre_read_buff,0,BUFSIZ);
 
     u_char* current_temp_buff=temp_buff+strlen((const char *)temp_buff);
     u_char* current_buff=buff;
@@ -207,7 +208,7 @@ void do_recv(u_char* buff,int len,struct socket_thread* _st){
         if(zero_index>=remain_len && *(current_buff+zero_index)!='\0'){
             memcpy(current_temp_buff,current_buff,zero_index);
             *(current_temp_buff+zero_index)='\0';
-            strcpy((char*)pre_read_buff,(const char *)temp_buff);
+            strcpy((char*)_st->pre_read_buff,(const char *)temp_buff);
             break;
         }else{
             memcpy(current_temp_buff,current_buff,zero_index+1);
@@ -234,7 +235,11 @@ void _stopThread(struct socket_thread* _st){
         _st->running=0;
         free(_st->t);
         _st->t=NULL;
-    }    
+    }
+    if(_st->pre_read_buff!=NULL){
+        free(_st->pre_read_buff);
+        _st->pre_read_buff=NULL;
+    }
 }
 
 void* socket_loop(void* arg){
@@ -269,6 +274,7 @@ struct socket_thread* getFreeST(){
     for(int i=0;i<10;i++){
         if(st[i].t==NULL){
             st[i].t=malloc(sizeof(pthread_t));
+            st[i].pre_read_buff=malloc(BUFSIZ);
             return &st[i];
         }
     }
