@@ -208,16 +208,16 @@ void do_recv(char* buff_0,struct socket_thread* _st){
         p_split_end[0]='\0';
         strcpy(data,(const char*)(p_split_start+2));
         do_parse(data,_st);
-    // }else if(p_split_start!=NULL && p_split_end!=NULL && p_split_end<p_split_start){
-    //     p_split_end[0]='\0';
-    //     char* last_data=(char*)(data+strlen((const char*)data));
-    //     strcpy(last_data,(const char*)buff);
-    //     do_parse(data,_st);
+    }else if(p_split_start!=NULL && p_split_end!=NULL && p_split_end<p_split_start){
+        p_split_end[0]='\0';
+        char* last_data=(char*)(data+strlen((const char*)data));
+        strcpy(last_data,(const char*)buff);
+        do_parse(data,_st);
 
-    //     do_recv(p_split_start,_st);
+        do_recv(p_split_start,_st);
 
-    }else if(p_split_start!=NULL && p_split_end==NULL){
-        strcpy((char*)_st->pre_read_buff,(const char*)(p_split_start+2));
+    // }else if(p_split_start!=NULL && p_split_end==NULL){
+    //     strcpy((char*)_st->pre_read_buff,(const char*)(p_split_start+2));
     }else if(p_split_start==NULL && p_split_end!=NULL){
         p_split_end[0]='\0';
         char* last_data=(char*)(data+strlen((const char*)data));
